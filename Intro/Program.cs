@@ -1,4 +1,5 @@
-﻿using Intro;
+﻿using System.ComponentModel;
+using Intro;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
@@ -50,24 +51,45 @@ var kernel = kernelBuilder.Build();
 
 
 #region history
-var history = new ChatHistory();
-history.AddUserMessage("Selam benim adım hüseyin.şuanda semantic kernel öğreniyorum. Senin adın nedir?");
+// var history = new ChatHistory();
+// history.AddUserMessage("Selam benim adım hüseyin.şuanda semantic kernel öğreniyorum. Senin adın nedir?");
 
-var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
-var response = await chatCompletionService.GetChatMessageContentAsync(history);
+// var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+// var response = await chatCompletionService.GetChatMessageContentAsync(history);
 
-System.Console.WriteLine($"############ MESSAGE: {response}\n ##########################################################");
+// System.Console.WriteLine($"############ MESSAGE: {response}\n ##########################################################");
 
 
-history.AddAssistantMessage(response.ToString());
+// history.AddAssistantMessage(response.ToString());
 
-history.AddUserMessage("Beni tanıyor musun? Tanıyorsan adımı ve öğrenmekte olduğum şeyi bilirsin");
-var response2 = await chatCompletionService.GetChatMessageContentAsync(history);
-System.Console.WriteLine($"############ MESSAGE: {response2}\n ##########################################################");
+// history.AddUserMessage("Beni tanıyor musun? Tanıyorsan adımı ve öğrenmekte olduğum şeyi bilirsin");
+// var response2 = await chatCompletionService.GetChatMessageContentAsync(history);
+// System.Console.WriteLine($"############ MESSAGE: {response2}\n ##########################################################");
 
-history.AddAssistantMessage(response2.ToString());
+// history.AddAssistantMessage(response2.ToString());
 
-Console.Read();
+// Console.Read();
 
 #endregion
 
+
+#region Plugin Yapılanması
+
+kernel.Plugins.AddFromType<CalculatorPlugin>();
+
+var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+
+var result = await chatCompletionService.GetChatMessageContentAsync(
+    "100 x 45 kaçtır?",
+    executionSettings: new PromptExecutionSettings
+    {
+        FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+    },
+    kernel: kernel
+    );
+ 
+ 
+Console.WriteLine(result.ToString());
+
+
+#endregion
